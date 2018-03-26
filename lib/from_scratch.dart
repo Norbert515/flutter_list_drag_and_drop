@@ -18,16 +18,20 @@ class MyAppState extends State<MyApp2> {
   bool shouldScrollUp = false;
   bool shouldScrollDown = false;
 
+  double _currenScrollPos = 0.0;
+
+  double _currentMiddleLine = 0.0;
+
   ScrollController scrollController = new ScrollController();
 
   List<Data> rows = new List<Data>()
     ..add(new Data('0'))
     ..add(new Data('1'))
     ..add(new Data('2'))
+ //   ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
+   // ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
     ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
-    ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
-    ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
-    ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
+    //..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
     //..add(new Data('3'))
     ..add(new Data('4'))
     ..add(new Data('5'));
@@ -45,6 +49,9 @@ class MyAppState extends State<MyApp2> {
     ..add('18')
     ..add('19')
     ..add('20');*/
+
+
+  bool blocked =false;
 
 
   double dragHeight;
@@ -113,28 +120,46 @@ class MyAppState extends State<MyApp2> {
                 });
 
               },
-              onLeave: (Data data) {
+              onLeave: (DataAndOffset df) {
+                Data data = df.data;
+                Offset offset = df.offset;
                 if(rows[index].data != "") return;
                 // Debug
-                print('${data.data} is Leaving row $index');
+             //   print('${data.data} is Leaving row $index');
                 setState((){
-                  rows.removeAt(index);
+           //       if(_currenScrollPos > offset.dy) {
+             //       rows.removeAt(index + 1);
+
+           //       } else {
+                    rows.removeAt(index);
+           //       }
               //    rows[index].color = Colors.white;
                 });
 
               },
-              onWillAccept: (Data data) {
+              onWillAccept: (DataAndOffset dataAndOffset) {
+                if(blocked) return true;
+                Data data = dataAndOffset.data;
+                Offset offset = dataAndOffset.offset;
+                _currentMiddleLine = offset.dy;
                 if(rows[index].data == "") return false;
                 // Debug
-                print('$index will accept row ${data.data}');
+             //   print('$index will accept row ${data.data}');
+                print("$index and $offset scrollpos $_currenScrollPos");
                 setState((){
                //   rows[index].color = Colors.red;
-                  rows.insert(index, new Data(""));
+             //     if(_currenScrollPos > offset.dy) {
+               //     rows.insert(index+1, new Data(""));
+              //    } else {
+                    rows.insert(index, new Data(""));
+              //    }
                 });
 
                 return true;
               },
               onMove: (Offset offset){
+                _currenScrollPos = offset.dy;
+                maybeMove(index);
                 double screenHeight = MediaQuery.of(context2).size.height;
 
                 if(offset.dy < _kScrollThreashhold) {
@@ -158,6 +183,16 @@ class MyAppState extends State<MyApp2> {
     );
 
   }
+
+  void maybeMove(int index) {
+    print("maybe $_currenScrollPos and middle $_currentMiddleLine");
+    if((_currentMiddleLine- _currenScrollPos).abs() < 10.0) {
+   //     rows.removeAt(index);
+      blocked = true;
+    } else {
+      blocked = false;
+    }
+  }
 }
 
 class DraggableListItem extends StatelessWidget {
@@ -179,8 +214,8 @@ class DraggableListItem extends StatelessWidget {
   final ValueChanged<double> onDragStarted;
   final VoidCallback onDragCompleted;
   final MyDragTargetAccept<Data> onAccept;
-  final MyDragTargetLeave<Data> onLeave;
-  final MyDragTargetWillAccept<Data> onWillAccept;
+  final MyDragTargetLeave<DataAndOffset> onLeave;
+  final MyDragTargetWillAccept<DataAndOffset> onWillAccept;
   final ValueChanged<Offset> onMove;
 
   DraggableListItem({this.data, this.index, this.onDragStarted, this.onDragCompleted, this.onAccept, this.onLeave, this.onWillAccept, this.onMove, this.draggedHeight});
@@ -222,8 +257,16 @@ class DraggableListItem extends StatelessWidget {
       return _getActualChild();
     },
       onAccept: onAccept,
-      onLeave: onLeave,
-      onWillAccept: onWillAccept,
+      onLeave: (dAndF){
+        RenderBox it = context.findRenderObject() as RenderBox;
+        var offset = it.localToGlobal(new Offset(0.0, it.size.height / 2));
+        return onLeave(new DataAndOffset(data, offset));
+      },
+      onWillAccept: (data){
+        RenderBox it = context.findRenderObject() as RenderBox;
+        var offset = it.localToGlobal(new Offset(0.0, it.size.height / 2));
+        return onWillAccept(new DataAndOffset(data, offset));
+      },
 
     );
   }
@@ -246,4 +289,11 @@ class Data {
   Color color = Colors.white;
 
   Data(this.data, {this.color});
+}
+
+class DataAndOffset{
+  final Data data;
+  final Offset offset;
+
+  DataAndOffset(this.data, this.offset);
 }
