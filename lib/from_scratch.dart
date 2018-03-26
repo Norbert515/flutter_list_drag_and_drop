@@ -20,7 +20,6 @@ class MyAppState extends State<MyApp2> {
 
   double _currenScrollPos = 0.0;
 
-  double _currentMiddleLine = 0.0;
 
   ScrollController scrollController = new ScrollController();
 
@@ -51,7 +50,6 @@ class MyAppState extends State<MyApp2> {
     ..add('20');*/
 
 
-  bool blocked =false;
 
 
   double dragHeight;
@@ -125,41 +123,26 @@ class MyAppState extends State<MyApp2> {
                 Offset offset = df.offset;
                 if(rows[index].data != "") return;
                 // Debug
-             //   print('${data.data} is Leaving row $index');
                 setState((){
-           //       if(_currenScrollPos > offset.dy) {
-             //       rows.removeAt(index + 1);
-
-           //       } else {
                     rows.removeAt(index);
-           //       }
-              //    rows[index].color = Colors.white;
                 });
 
               },
               onWillAccept: (DataAndOffset dataAndOffset) {
-                if(blocked) return true;
                 Data data = dataAndOffset.data;
                 Offset offset = dataAndOffset.offset;
-                _currentMiddleLine = offset.dy;
-                if(rows[index].data == "") return false;
-                // Debug
+
              //   print('$index will accept row ${data.data}');
                 print("$index and $offset scrollpos $_currenScrollPos");
+
                 setState((){
-               //   rows[index].color = Colors.red;
-             //     if(_currenScrollPos > offset.dy) {
-               //     rows.insert(index+1, new Data(""));
-              //    } else {
-                    rows.insert(index, new Data(""));
-              //    }
+                    //rows.insert(index, new Data(""));
                 });
 
                 return true;
               },
               onMove: (Offset offset){
                 _currenScrollPos = offset.dy;
-                maybeMove(index);
                 double screenHeight = MediaQuery.of(context2).size.height;
 
                 if(offset.dy < _kScrollThreashhold) {
@@ -184,15 +167,6 @@ class MyAppState extends State<MyApp2> {
 
   }
 
-  void maybeMove(int index) {
-    print("maybe $_currenScrollPos and middle $_currentMiddleLine");
-    if((_currentMiddleLine- _currenScrollPos).abs() < 10.0) {
-   //     rows.removeAt(index);
-      blocked = true;
-    } else {
-      blocked = false;
-    }
-  }
 }
 
 class DraggableListItem extends StatelessWidget {
@@ -205,10 +179,12 @@ class DraggableListItem extends StatelessWidget {
 
   final double _kScrollThreashhold = 80.0;
 
-  final double _kHeight = 70.0;
 
 
   final double draggedHeight;
+
+  double extraTop;
+  double extraBot;
 
 
   final ValueChanged<double> onDragStarted;
@@ -218,7 +194,8 @@ class DraggableListItem extends StatelessWidget {
   final MyDragTargetWillAccept<DataAndOffset> onWillAccept;
   final ValueChanged<Offset> onMove;
 
-  DraggableListItem({this.data, this.index, this.onDragStarted, this.onDragCompleted, this.onAccept, this.onLeave, this.onWillAccept, this.onMove, this.draggedHeight});
+  DraggableListItem({this.data, this.index, this.onDragStarted, this.onDragCompleted, this.onAccept, this.onLeave, this.onWillAccept,
+    this.onMove, this.draggedHeight, this.extraTop = 0.0, this.extraBot = 0.0, });
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +228,6 @@ class DraggableListItem extends StatelessWidget {
   Widget _getListChild(int index, BuildContext context) {
     return new MyDragTarget<Data>(builder: (BuildContext context, List candidateData, List rejectedData) {
       if(data.data == "") {
-      //  print("returning $draggedHeight box for $index");
         return new SizedBox(height: draggedHeight,);
       }
       return _getActualChild();
