@@ -2,7 +2,14 @@
 
 A new Flutter package which handles all aspects of drag and drop inside a listView.
 
-## Getting Started
+## Features
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+- When dragging an item to the top/ bottom the list scroll accordingly 
+- Works with different sized items
+- material like behaviour 
+
+## What's missing
+
+- Smooth animations
+- A ready to use API
+- Bugfixes
