@@ -109,7 +109,6 @@ class MyAppState extends State<MyApp2> {
                 _currentIndex = null;
                 _currenScrollPos = 0.0;
                 _currentMiddle = null;
-                _dataAndOffset = null;
               },
               onAccept: (Data data) {
                 //data is row coming from
@@ -149,7 +148,6 @@ class MyAppState extends State<MyApp2> {
                 Offset offset = dataAndOffset.offset;
 
                 _currentIndex = index;
-                _dataAndOffset = dataAndOffset.size;
                 _currentMiddle = offset;
 
               //  print('$index will accept row ${data.data}');
@@ -159,8 +157,10 @@ class MyAppState extends State<MyApp2> {
                 setState((){
                   if(dataAndOffset.offset.dy > _currenScrollPos) {
                     rows[index].extraTop = dataAndOffset.size.height;
+                    rows[index].extraBot = 0.0;
                   } else {
                     rows[index].extraBot = dataAndOffset.size.height;
+                    rows[index].extraTop = 0.0;
                   }
                     //rows.insert(index, new Data(""));
                 });
@@ -195,16 +195,15 @@ class MyAppState extends State<MyApp2> {
   }
 
   Offset _currentMiddle;
-  Size _dataAndOffset;
   int _currentIndex;
   void _maybeChange() {
-    if(_currentMiddle == null || _dataAndOffset == null ||_currenScrollPos == null || _currentIndex == null) return;
+    if(_currentMiddle == null || dragHeight == null ||_currenScrollPos == null || _currentIndex == null) return;
     setState((){
       if(_currentMiddle.dy > _currenScrollPos) {
-        rows[_currentIndex].extraTop = _dataAndOffset.height;
+        rows[_currentIndex].extraTop = dragHeight;
         rows[_currentIndex].extraBot = 0.0;
       } else {
-        rows[_currentIndex].extraBot = _dataAndOffset.height;
+        rows[_currentIndex].extraBot = dragHeight;
         rows[_currentIndex].extraTop = 0.0;
       }
       //rows.insert(index, new Data(""));
