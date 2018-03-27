@@ -33,7 +33,16 @@ class MyAppState extends State<MyApp2> {
     //..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
     ..add(new Data('3'))
     ..add(new Data('4'))
-    ..add(new Data('5'));
+    ..add(new Data('5'))
+    ..add(new Data('6'))
+    ..add(new Data('7'))
+    ..add(new Data('8'))
+    ..add(new Data('9'))
+    ..add(new Data('10'))
+    ..add(new Data('11'))
+    ..add(new Data('12'))
+    ..add(new Data('13'))
+    ..add(new Data('14'));
   /*  ..add('7')
     ..add('8')
     ..add('9')
@@ -65,6 +74,7 @@ class MyAppState extends State<MyApp2> {
 
   void _maybeScroll() {
     if(isScrolling) return;
+
     if(shouldScrollUp) {
       isScrolling = true;
       var scrollTo = scrollController.offset - 50.0;
@@ -134,7 +144,13 @@ class MyAppState extends State<MyApp2> {
                 Data data = df.data;
                 Offset offset = df.offset;
                 // Debug
-             //   print('$index leaving');
+                print('$index leaving');
+
+                //TODO not so performant
+                rows.forEach((it){
+                  it.extraTop = 0.0;
+                  it.extraBot = 0.0;
+                });
 
                 setState((){
                    // rows.removeAt(index);
@@ -150,7 +166,7 @@ class MyAppState extends State<MyApp2> {
                 _currentIndex = index;
                 _currentMiddle = offset;
 
-              //  print('$index will accept row ${data.data}');
+                print('$index will accept row ${data.data}');
             //    print("$index and $offset scrollpos $_currenScrollPos");
 
                 print('Middle: ${offset.dy} curren scrool pos: $_currenScrollPos');
