@@ -509,6 +509,9 @@ class _DragAvatar<T> extends Drag {
 
   final ValueChanged<Offset> onMove;
 
+  double startClamp = -1.0;
+  double endClamp = -1.0;
+
 
   void updateOffset(Offset offset) {
     _position += offset;
@@ -532,7 +535,12 @@ class _DragAvatar<T> extends Drag {
   }
 
   void updateDrag(Offset globalPosition) {
-    _lastOffset = globalPosition - dragStartPoint;
+    Offset temp = globalPosition - dragStartPoint;
+    if(startClamp != -1.0 && temp.dy < startClamp && endClamp != -1.0 && temp.dy > endClamp) {
+
+    } else {
+      _lastOffset = globalPosition - dragStartPoint;
+    }
     _entry.markNeedsBuild();
 
     //TODO norbert it's here :)
