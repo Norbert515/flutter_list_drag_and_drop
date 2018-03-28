@@ -13,7 +13,7 @@ class MyAppState extends State<MyApp2> {
 
   final double _kHeight = 70.0;
 
-  final double _kScrollThreashhold = 80.0;
+  final double _kScrollThreashhold = 160.0;
 
   bool shouldScrollUp = false;
   bool shouldScrollDown = false;
@@ -60,6 +60,8 @@ class MyAppState extends State<MyApp2> {
     ..add('20');*/
 
 
+  int _currentDraggingIndex;
+
 
 
   double dragHeight;
@@ -67,8 +69,9 @@ class MyAppState extends State<MyApp2> {
   @override
   void initState() {
     super.initState();
-
-
+    for(int i = 0; i < rows.length; i++) {
+      key.add(new GlobalKey());
+    }
   }
 
   bool isScrolling = false;
@@ -78,25 +81,30 @@ class MyAppState extends State<MyApp2> {
 
     if(shouldScrollUp) {
       isScrolling = true;
-      var scrollTo = scrollController.offset - 50.0;
+      var scrollTo = scrollController.offset - 12.0;
       scrollController.animateTo(
-          scrollTo, duration: new Duration(milliseconds: 250),
+          scrollTo, duration: new Duration(milliseconds: 74),
           curve: Curves.linear).then((it) {
+        key[_currentDraggingIndex]?.currentState?.avatar?.updateOffset(new Offset(0.0, 0.0));
         isScrolling = false;
         _maybeScroll();
       });
     }
     if(shouldScrollDown) {
       isScrolling = true;
-      var scrollTo = scrollController.offset + 50.0;
+      var scrollTo = scrollController.offset + 12.0;
       scrollController.animateTo(
-          scrollTo, duration: new Duration(milliseconds: 250),
+          scrollTo, duration: new Duration(milliseconds: 75),
           curve: Curves.linear).then((it) {
+        key[_currentDraggingIndex]?.currentState?.avatar?.updateOffset(new Offset(0.0, 0.0));
         isScrolling = false;
         _maybeScroll();
       });
     }
   }
+  GlobalKey<MyDraggableState<Data>> thisKey = new GlobalKey();
+
+  List<GlobalKey<MyDraggableState<Data>>> key = [];
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +114,31 @@ class MyAppState extends State<MyApp2> {
         appBar: new AppBar(),
         body: new ListView.builder(itemBuilder: (BuildContext context2, int index) {
             return new DraggableListItem(
+              myKey: key[index],
               data: rows[index],
               index: index,
               draggedHeight: dragHeight,
               onDragStarted: (double draggedHeight){
+                _currentDraggingIndex = index;
+               /* OverlayEntry entry = new OverlayEntry(builder: (context){
+                  return new Positioned(
+                    top: 20.0,
+                    left: 20.0,
+                    child: new MyDragTarget<Data>(
+                      builder: (context, data, more) {
+                        return new Container(
+                          width: 200.0,
+                          height: 200.0,
+                          color: Colors.red,
+                        );
+                      },
+                      onAccept: (data){
+                        print("accepted");
+                      },
+                    ),
+                  );
+                });
+                Overlay.of(context2).insert(entry);*/
                 dragHeight = draggedHeight;
                 print("drag started at $index");
                 setState((){
@@ -257,12 +286,15 @@ class DraggableListItem extends StatelessWidget {
   final ValueChanged<Offset> onMove;
   final ValueChanged<int> cancelCallback;
 
-  DraggableListItem({this.data, this.index, this.onDragStarted, this.onDragCompleted, this.onAccept, this.onLeave, this.onWillAccept,
+  Key myKey;
+
+  DraggableListItem({this.myKey, this.data, this.index, this.onDragStarted, this.onDragCompleted, this.onAccept, this.onLeave, this.onWillAccept,
     this.onMove, this.cancelCallback, this.draggedHeight});
 
   @override
   Widget build(BuildContext context) {
     return new LongPressMyDraggable<Data>(
+      key: myKey,
       child: _getListChild(index, context),
       feedback: _getFeedback(index, context),
       data: data,

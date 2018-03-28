@@ -217,7 +217,7 @@ class MyDraggable<T> extends StatefulWidget {
   }
 
   @override
-  _MyDraggableState<T> createState() => new _MyDraggableState<T>();
+  MyDraggableState<T> createState() => new MyDraggableState<T>();
 }
 
 /// Makes its child MyDraggable starting from long press.
@@ -266,7 +266,8 @@ class LongPressMyDraggable<T> extends MyDraggable<T> {
   }
 }
 
-class _MyDraggableState<T> extends State<MyDraggable<T>> {
+class MyDraggableState<T> extends State<MyDraggable<T>> {
+  _DragAvatar avatar;
   @override
   void initState() {
     super.initState();
@@ -345,6 +346,8 @@ class _MyDraggableState<T> extends State<MyDraggable<T>> {
     );
     if (widget.onDragStarted != null)
       widget.onDragStarted();
+    //TODO mine
+    this.avatar = avatar;
     return avatar;
   }
 
@@ -506,6 +509,11 @@ class _DragAvatar<T> extends Drag {
 
   final ValueChanged<Offset> onMove;
 
+
+  void updateOffset(Offset offset) {
+    _position += offset;
+    updateDrag(_position);
+  }
 
   @override
   void update(DragUpdateDetails details) {
