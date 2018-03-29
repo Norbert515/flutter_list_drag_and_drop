@@ -513,8 +513,7 @@ class DragAvatar<T> extends Drag {
   double endClamp = -1.0;
 
 
-  void updateOffset(Offset offset) {
-    _position += offset;
+  void updateZero() {
     updateDrag(_position);
   }
 

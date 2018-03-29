@@ -63,8 +63,11 @@ class MyAppState extends State<MyApp2> {
   int _currentDraggingIndex;
 
 
+  MyDraggableState currentDraggedState;
 
   double dragHeight;
+
+  SliverMultiBoxAdaptorElement renderSliverContext;
 
   @override
   void initState() {
@@ -76,7 +79,7 @@ class MyAppState extends State<MyApp2> {
 
   bool isScrolling = false;
 
-  void _maybeScroll(DragAvatar avatar) {
+  void _maybeScroll() {
     if(isScrolling) return;
 
 
@@ -87,12 +90,22 @@ class MyAppState extends State<MyApp2> {
       scrollController.animateTo(
           scrollTo, duration: new Duration(milliseconds: 74),
           curve: Curves.linear).then((it) {
-        if(avatar == null) {
-          avatar = key[_currentDraggingIndex].currentState?.avatar;
-        }
-        avatar.updateOffset(new Offset(0.0, 0.0));
+     //   currentDraggedState.avatar.updateZero();
+
+        RenderSliverList it = renderSliverContext.findRenderObject();
+        RenderBox ch = it.firstChild;
+        var indexx = it.indexOf(ch);
+        setState((){
+          //TODO not so performant
+          rows.forEach((it){
+            it.extraTop = 0.0;
+            it.extraBot = 0.0;
+          });
+          rows[indexx].extraTop = dragHeight;
+        });
+
         isScrolling = false;
-        _maybeScroll(avatar);
+        _maybeScroll();
       });
     }
     if(shouldScrollDown) {
@@ -102,18 +115,27 @@ class MyAppState extends State<MyApp2> {
       scrollController.animateTo(
           scrollTo, duration: new Duration(milliseconds: 75),
           curve: Curves.linear).then((it) {
-        if(avatar == null) {
-          avatar = key[_currentDraggingIndex].currentState?.avatar;
-        }
-        avatar.updateOffset(new Offset(0.0, 0.0));
+   //     currentDraggedState.avatar.updateZero();
+        RenderSliverList it = renderSliverContext.findRenderObject();
+        RenderBox ch = it.lastChild;
+        var indexx = it.indexOf(ch);
+        setState((){
+          //TODO not so performant
+          rows.forEach((it){
+            it.extraTop = 0.0;
+            it.extraBot = 0.0;
+          });
+          rows[indexx].extraTop = dragHeight;
+        });
         isScrolling = false;
-        _maybeScroll(avatar);
+        _maybeScroll();
       });
     }
   }
   GlobalKey<MyDraggableState<Data>> thisKey = new GlobalKey();
 
   List<GlobalKey<MyDraggableState<Data>>> key = [];
+
 
   @override
   Widget build(BuildContext context) {
@@ -134,31 +156,62 @@ class MyAppState extends State<MyApp2> {
                   RenderBox rend = context3.findRenderObject();
                   double start = rend.localToGlobal(new Offset(0.0, 0.0)).dy;
                   double end = rend.localToGlobal(new Offset(0.0, rend.semanticBounds.height)).dy;
-                  //TODO called on null?
-                  key[_currentDraggingIndex]?.currentState?.avatar?.startClamp = start;
-                  key[_currentDraggingIndex]?.currentState?.avatar?.endClamp = end;
 
+                  currentDraggedState = key[index].currentState;
+
+                  renderSliverContext = context2;
 
                   //  list.paintBounds
-                  /* OverlayEntry entry = new OverlayEntry(builder: (context){
+                   OverlayEntry entry = new OverlayEntry(builder: (context){
                     return new Positioned(
-                      top: 20.0,
-                      left: 20.0,
+                      top: 0.0 + _kScrollThreashhold,
+                      left: 0.0,
                       child: new MyDragTarget<Data>(
                         builder: (context, data, more) {
                           return new Container(
-                            width: 200.0,
-                            height: 200.0,
-                            color: Colors.red,
+                            width: MediaQuery.of(context).size.width,
+                            height: start,
+                            color: Colors.transparent,
                           );
                         },
                         onAccept: (data){
-                          print("accepted");
+                          setState((){
+                            rows[_currentIndex].extraTop = 0.0;
+                            rows[_currentIndex].extraBot = 0.0;
+                            rows.insert(0, data);
+                            rows[_currentIndex].extraTop = 0.0;
+                            rows[_currentIndex].extraBot = 0.0;
+                          });
                         },
                       ),
                     );
                   });
-                  Overlay.of(context2).insert(entry);*/
+                  OverlayEntry entry2 = new OverlayEntry(builder: (context){
+                    return new Positioned(
+                      top: end - _kScrollThreashhold,
+                      left: 0.0,
+                      child: new MyDragTarget<Data>(
+                        builder: (context, data, more) {
+                          return new Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            color: Colors.red..withOpacity(0.1),
+                          );
+                        },
+                        onAccept: (data){
+                          setState((){
+                            rows[0].extraTop = 0.0;
+                            rows[0].extraBot = 0.0;
+                            rows.insert(0, data);
+                            rows[0].extraTop = 0.0;
+                            rows[0].extraBot = 0.0;
+                          });
+                        },
+                      ),
+                    );
+                  });
+                  Overlay.of(context2).insert(entry);
+                  Overlay.of(context2).insert(entry2);
                   dragHeight = draggedHeight;
                   print("drag started at $index");
                   setState((){
@@ -213,6 +266,7 @@ class MyAppState extends State<MyApp2> {
                   Data data = dataAndOffset.data;
                   Offset offset = dataAndOffset.offset;
 
+
                   //TODO not so performant
                   rows.forEach((it){
                     it.extraTop = 0.0;
@@ -254,7 +308,7 @@ class MyAppState extends State<MyApp2> {
                   } else {
                     shouldScrollDown = false;
                   }
-                  _maybeScroll(null);
+                  _maybeScroll();
                 },
                 cancelCallback: (int data){
                   setState((){
@@ -275,6 +329,8 @@ class MyAppState extends State<MyApp2> {
   }
 
   Offset _currentMiddle;
+
+  //Index of the item currently accepting
   int _currentIndex;
   void _maybeChange() {
     if(_currentMiddle == null || dragHeight == null ||_currenScrollPos == null || _currentIndex == null) return;
