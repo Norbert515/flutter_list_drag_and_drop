@@ -28,8 +28,8 @@ class MyAppState extends State<MyApp2> {
     ..add(new Data('0'))
     ..add(new Data('1'))
     ..add(new Data('2'))
-  //  ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
-  //  ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
+    ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
+    ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
    // ..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
     //..add(new Data('3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsd3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsf3ffffffffffffffffffsdfsdfsdfsdfsdfsdfsdfsdfsdfdsffsdfsdfsdfsdfsdfsdfdsf'))
     ..add(new Data('3'))
@@ -76,7 +76,7 @@ class MyAppState extends State<MyApp2> {
 
   bool isScrolling = false;
 
-  void _maybeScroll() {
+  void _maybeScroll(DragAvatar avatar) {
     if(isScrolling) return;
 
 
@@ -87,9 +87,12 @@ class MyAppState extends State<MyApp2> {
       scrollController.animateTo(
           scrollTo, duration: new Duration(milliseconds: 74),
           curve: Curves.linear).then((it) {
-        key[_currentDraggingIndex]?.currentState?.avatar?.updateOffset(new Offset(0.0, 0.0));
+        if(avatar == null) {
+          avatar = key[_currentDraggingIndex].currentState?.avatar;
+        }
+        avatar.updateOffset(new Offset(0.0, 0.0));
         isScrolling = false;
-        _maybeScroll();
+        _maybeScroll(avatar);
       });
     }
     if(shouldScrollDown) {
@@ -99,9 +102,12 @@ class MyAppState extends State<MyApp2> {
       scrollController.animateTo(
           scrollTo, duration: new Duration(milliseconds: 75),
           curve: Curves.linear).then((it) {
-        key[_currentDraggingIndex]?.currentState?.avatar?.updateOffset(new Offset(0.0, 0.0));
+        if(avatar == null) {
+          avatar = key[_currentDraggingIndex].currentState?.avatar;
+        }
+        avatar.updateOffset(new Offset(0.0, 0.0));
         isScrolling = false;
-        _maybeScroll();
+        _maybeScroll(avatar);
       });
     }
   }
@@ -131,6 +137,7 @@ class MyAppState extends State<MyApp2> {
                   //TODO called on null?
                   key[_currentDraggingIndex]?.currentState?.avatar?.startClamp = start;
                   key[_currentDraggingIndex]?.currentState?.avatar?.endClamp = end;
+
 
                   //  list.paintBounds
                   /* OverlayEntry entry = new OverlayEntry(builder: (context){
@@ -187,7 +194,7 @@ class MyAppState extends State<MyApp2> {
                 onLeave: (DataAndOffset df) {
 
                   // Debug
-                  print('$index leaving');
+               //   print('$index leaving');
 
                   //TODO not so performant
                   rows.forEach((it){
@@ -215,10 +222,10 @@ class MyAppState extends State<MyApp2> {
                   _currentIndex = index;
                   _currentMiddle = offset;
 
-                  print('$index will accept row ${data.data}');
+                //  print('$index will accept row ${data.data}');
                   //    print("$index and $offset scrollpos $_currenScrollPos");
 
-                  print('Middle: ${offset.dy} curren scrool pos: $_currenScrollPos');
+                //  print('Middle: ${offset.dy} curren scrool pos: $_currenScrollPos');
                   setState((){
                     if(dataAndOffset.offset.dy > _currenScrollPos) {
                       rows[index].extraTop = dataAndOffset.size.height;
@@ -233,7 +240,6 @@ class MyAppState extends State<MyApp2> {
                   return true;
                 },
                 onMove: (Offset offset){
-                  print(offset.dy);
                   _currenScrollPos = offset.dy;
                   _maybeChange();
                   double screenHeight = MediaQuery.of(context2).size.height;
@@ -248,7 +254,7 @@ class MyAppState extends State<MyApp2> {
                   } else {
                     shouldScrollDown = false;
                   }
-                  _maybeScroll();
+                  _maybeScroll(null);
                 },
                 cancelCallback: (int data){
                   setState((){

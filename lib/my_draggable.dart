@@ -267,7 +267,7 @@ class LongPressMyDraggable<T> extends MyDraggable<T> {
 }
 
 class MyDraggableState<T> extends State<MyDraggable<T>> {
-  _DragAvatar avatar;
+  DragAvatar avatar;
   @override
   void initState() {
     super.initState();
@@ -305,7 +305,7 @@ class MyDraggableState<T> extends State<MyDraggable<T>> {
     _recognizer.addPointer(event);
   }
 
-  _DragAvatar<T> _startDrag(Offset position) {
+  DragAvatar<T> _startDrag(Offset position) {
     if (widget.maxSimultaneousDrags != null && _activeCount >= widget.maxSimultaneousDrags)
       return null;
     Offset dragStartPoint;
@@ -321,7 +321,7 @@ class MyDraggableState<T> extends State<MyDraggable<T>> {
     setState(() {
       _activeCount += 1;
     });
-    final _DragAvatar<T> avatar = new _DragAvatar<T>(
+    final DragAvatar<T> avatar = new DragAvatar<T>(
         overlayState: Overlay.of(context, debugRequiredFor: widget),
         data: widget.data,
         initialPosition: position,
@@ -344,10 +344,10 @@ class MyDraggableState<T> extends State<MyDraggable<T>> {
             widget.onMyDraggableCanceled(velocity, offset);
         }
     );
-    if (widget.onDragStarted != null)
-      widget.onDragStarted();
     //TODO mine
     this.avatar = avatar;
+    if (widget.onDragStarted != null)
+      widget.onDragStarted();
     return avatar;
   }
 
@@ -413,15 +413,15 @@ class MyDragTarget<T> extends StatefulWidget {
   _MyDragTargetState<T> createState() => new _MyDragTargetState<T>();
 }
 
-List<T> _mapAvatarsToData<T>(List<_DragAvatar<T>> avatars) {
-  return avatars.map<T>((_DragAvatar<T> avatar) => avatar.data).toList();
+List<T> _mapAvatarsToData<T>(List<DragAvatar<T>> avatars) {
+  return avatars.map<T>((DragAvatar<T> avatar) => avatar.data).toList();
 }
 
 class _MyDragTargetState<T> extends State<MyDragTarget<T>> {
-  final List<_DragAvatar<T>> _candidateAvatars = <_DragAvatar<T>>[];
-  final List<_DragAvatar<dynamic>> _rejectedAvatars = <_DragAvatar<dynamic>>[];
+  final List<DragAvatar<T>> _candidateAvatars = <DragAvatar<T>>[];
+  final List<DragAvatar<dynamic>> _rejectedAvatars = <DragAvatar<dynamic>>[];
 
-  bool didEnter(_DragAvatar<dynamic> avatar) {
+  bool didEnter(DragAvatar<dynamic> avatar) {
     assert(!_candidateAvatars.contains(avatar));
     assert(!_rejectedAvatars.contains(avatar));
     if (avatar.data is T && (widget.onWillAccept == null || widget.onWillAccept(avatar.data))) {
@@ -434,7 +434,7 @@ class _MyDragTargetState<T> extends State<MyDragTarget<T>> {
     return false;
   }
 
-  void didLeave(_DragAvatar<dynamic> avatar) {
+  void didLeave(DragAvatar<dynamic> avatar) {
     assert(_candidateAvatars.contains(avatar) || _rejectedAvatars.contains(avatar));
     if (!mounted)
       return;
@@ -446,7 +446,7 @@ class _MyDragTargetState<T> extends State<MyDragTarget<T>> {
       widget.onLeave(avatar.data);
   }
 
-  void didDrop(_DragAvatar<dynamic> avatar) {
+  void didDrop(DragAvatar<dynamic> avatar) {
     assert(_candidateAvatars.contains(avatar));
     if (!mounted)
       return;
@@ -475,8 +475,8 @@ typedef void _OnDragEnd(Velocity velocity, Offset offset, bool wasAccepted);
 // lives as long as the pointer is down. Arguably it should self-immolate if the
 // overlay goes away. _MyDraggableState has some delicate logic to continue
 // eeding this object pointer events even after it has been disposed.
-class _DragAvatar<T> extends Drag {
-  _DragAvatar({
+class DragAvatar<T> extends Drag {
+  DragAvatar({
     @required this.overlayState,
     this.data,
     Offset initialPosition,
@@ -535,12 +535,8 @@ class _DragAvatar<T> extends Drag {
   }
 
   void updateDrag(Offset globalPosition) {
-    Offset temp = globalPosition - dragStartPoint;
-    if(startClamp != -1.0 && temp.dy < startClamp && endClamp != -1.0 && temp.dy > endClamp) {
 
-    } else {
-      _lastOffset = globalPosition - dragStartPoint;
-    }
+    _lastOffset = globalPosition - dragStartPoint;
     _entry.markNeedsBuild();
 
     //TODO norbert it's here :)
