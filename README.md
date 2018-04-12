@@ -12,8 +12,10 @@ A new Flutter package which handles all aspects of drag and drop inside a listVi
 - Works with different sized items
 - material like behaviour 
 
-## What's missing
+## What's coming next
 
-- Smooth animations
-- A ready to use API
-- Bugfixes
+- Smoother animations
+- Support for horizontal lists
+
+If you encounter feel free to open an issue.
+Pull request are also welcome.
