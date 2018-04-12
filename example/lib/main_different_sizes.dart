@@ -34,11 +34,11 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   List<String> items = [
     '0',
-    '1/n 2 /n 3 /n',
-    '2',
+    '1',
+    'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.'
     '3',
     '4',
-    '5',
+    'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
     '6',
     '7',
     '8',
@@ -74,6 +74,7 @@ class MyHomePageState extends State<MyHomePage> {
         },
         canAccept: (one, two) => true,
         dragElevation: 8.0,
+        tilt: 0.05,
       ),
     );
   }
