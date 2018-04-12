@@ -206,7 +206,7 @@ class MyDraggable<T> extends StatefulWidget {
   /// Subclasses can override this function to customize when they start
   /// recognizing a drag.
   @protected
-  MultiDragGestureRecognizer<MultiDragPointerState> createRecognizer(GestureMultiDragStartCallback onStart) {
+  GestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) {
     switch (affinity) {
       case Axis.horizontal:
         return new HorizontalMultiDragGestureRecognizer()..onStart = onStart;
@@ -239,6 +239,7 @@ class LongPressMyDraggable<T> extends MyDraggable<T> {
     MyDraggableCanceledCallback onMyDraggableCanceled,
     VoidCallback onDragCompleted,
     ValueChanged<Offset> onMove,
+    this.delay = const Duration(milliseconds: 500),
   }) : super(
       key: key,
       child: child,
@@ -254,9 +255,11 @@ class LongPressMyDraggable<T> extends MyDraggable<T> {
       onMove: onMove
   );
 
+  final Duration delay;
+
   @override
   DelayedMultiDragGestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) {
-    return new DelayedMultiDragGestureRecognizer()
+    return new DelayedMultiDragGestureRecognizer(delay: delay)
       ..onStart = (Offset position) {
         final Drag result = onStart(position);
         if (result != null)
@@ -272,6 +275,7 @@ class MyDraggableState<T> extends State<MyDraggable<T>> {
   void initState() {
     super.initState();
     _recognizer = widget.createRecognizer(_startDrag);
+  //  _recognizer = new DelayedMultiDragGestureRecognizer()..onStart = (Offset pos){_startDrag(pos);};
   }
 
   @override
@@ -484,7 +488,7 @@ class DragAvatar<T> extends Drag {
     this.feedback,
     this.feedbackOffset: Offset.zero,
     this.onDragEnd,
-    this.onMove
+    this.onMove,
   }) : assert(overlayState != null),
         assert(dragStartPoint != null),
         assert(feedbackOffset != null) {
@@ -508,6 +512,7 @@ class DragAvatar<T> extends Drag {
   OverlayEntry _entry;
 
   final ValueChanged<Offset> onMove;
+
 
   double startClamp = -1.0;
   double endClamp = -1.0;
@@ -617,7 +622,8 @@ class DragAvatar<T> extends Drag {
     final RenderBox box = overlayState.context.findRenderObject();
     final Offset overlayTopLeft = box.localToGlobal(Offset.zero);
     return new Positioned(
-        left: _lastOffset.dx - overlayTopLeft.dx,
+        //left: _lastOffset.dx - overlayTopLeft.dx,
+        left: 0.0,
         top: _lastOffset.dy - overlayTopLeft.dy,
         child: new IgnorePointer(
             child: feedback
