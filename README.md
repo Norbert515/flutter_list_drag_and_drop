@@ -5,12 +5,16 @@ A new Flutter package which handles all aspects of drag and drop inside a listVi
 ## Demo
 ![Demo 1](https://github.com/Norbert515/flutter_list_drag_and_drop/blob/master/example/gifs/demo_1_small.gif)
 
+More gifs coming soon..
 
 ## Features
 
 - When dragging an item to the top/ bottom the list scroll accordingly 
 - Works with different sized items
 - material like behaviour 
+
+## How to use
+Coming soon..
 
 ## What's coming next
 
