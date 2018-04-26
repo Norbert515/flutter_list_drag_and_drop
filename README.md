@@ -2,7 +2,11 @@
 
 A new Flutter package which handles all aspects of drag and drop inside a listView.
 
-Pub package coming soon..
+In your pubspec.yaml
+'''
+dependencies:
+  flutter_list_drag_and_drop: "^0.1.1"
+'''
 
 ## Demo
 ![Demo 1](https://github.com/Norbert515/flutter_list_drag_and_drop/blob/master/example/gifs/demo_1_small.gif)
