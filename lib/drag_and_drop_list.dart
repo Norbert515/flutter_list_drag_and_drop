@@ -43,23 +43,30 @@ class DragAndDropList<T> extends StatefulWidget {
   // Otherwise, draggable items provide their own draggable implementation.
   final double tilt;
 
+  final Key key;
+  
   DragAndDropList(this.rowsData,
       {@required this.itemBuilder,
         this.onDragFinish,
         @required this.canBeDraggedTo,
         this.dragElevation = 0.0,
-        this.tilt = 0.0})
+        this.tilt = 0.0,
+        this.key})
       : providesOwnDraggable = false,
-        itemBuilderCustom = null;
+        itemBuilderCustom = null,
+        super(key: key);
 
   DragAndDropList.withCustomDraggableBehavior(this.rowsData,
       {@required this.itemBuilderCustom,
         this.onDragFinish,
         @required this.canBeDraggedTo,
         this.dragElevation = 0.0,
-        this.tilt = 0.0})
+        this.tilt = 0.0,
+        this.key})
       : providesOwnDraggable = true,
-        itemBuilder = null;
+        itemBuilder = null,
+        super(key: key);
+
 
   @override
   State<StatefulWidget> createState() => new _DragAndDropListState<T>();
