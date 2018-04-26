@@ -53,7 +53,7 @@ void testSwap() {
                 items.insert(after, data);
               });
             },
-            canAccept: (one, two) => true,
+            canBeDraggedTo: (one, two) => true,
           ),
         );
       },

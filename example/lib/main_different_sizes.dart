@@ -72,7 +72,7 @@ class MyHomePageState extends State<MyHomePage> {
           items.removeAt(before);
           items.insert(after, data);
         },
-        canAccept: (one, two) => true,
+        canBeDraggedTo: (one, two) => true,
         dragElevation: 8.0,
         tilt: 0.05,
       ),
