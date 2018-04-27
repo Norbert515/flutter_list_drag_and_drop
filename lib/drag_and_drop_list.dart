@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
-
 import 'my_draggable.dart';
 
 typedef WidgetAndDelegate WidgetMakerAndDelegate<T>(BuildContext context, T item);
@@ -44,22 +43,22 @@ class DragAndDropList<T> extends StatefulWidget {
   final double tilt;
 
   DragAndDropList(this.rowsData,
-      {@required this.itemBuilder,
+      {Key key, @required this.itemBuilder,
         this.onDragFinish,
         @required this.canBeDraggedTo,
         this.dragElevation = 0.0,
         this.tilt = 0.0})
       : providesOwnDraggable = false,
-        itemBuilderCustom = null;
+        itemBuilderCustom = null, super(key: key);
 
   DragAndDropList.withCustomDraggableBehavior(this.rowsData,
-      {@required this.itemBuilderCustom,
+      {Key key,@required this.itemBuilderCustom,
         this.onDragFinish,
         @required this.canBeDraggedTo,
         this.dragElevation = 0.0,
         this.tilt = 0.0})
       : providesOwnDraggable = true,
-        itemBuilder = null;
+        itemBuilder = null, super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _DragAndDropListState<T>();
@@ -80,7 +79,6 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   //Index of the item dragged
   int _currentDraggingIndex;
 
-  MyDraggableState currentDraggedState;
 
   // The height of the item being dragged
   double dragHeight;
@@ -96,7 +94,6 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
 
   bool isScrolling = false;
 
-  List<GlobalKey<MyDraggableState<Data>>> key = [];
 
   double sliverStartPos = 0.0;
 
@@ -106,9 +103,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
     print("reset");
     List data = widget.rowsData;
     rows = data.map((it) => new Data<T>(it)).toList();
-    for (int i = 0; i < rows.length; i++) {
-      key.add(new GlobalKey());
-    }
+
   }
 
   @override
@@ -116,13 +111,11 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
     super.didUpdateWidget(oldWidget);
     List data = widget.rowsData;
     rows = data.map((it) => new Data<T>(it)).toList();
-    key.clear();
-    for (int i = 0; i < rows.length; i++) {
-      key.add(new GlobalKey());
-    }
+
   }
 
-  void _maybeScroll() {
+  void _maybeScroll([int retry = 3]) {
+    if(retry < 0) return;
     if (isScrolling) return;
 
     if (shouldScrollUp) {
@@ -134,8 +127,10 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
           .then((it) {
         updatePlaceholder();
         isScrolling = false;
-        _maybeScroll();
+        _maybeScroll(retry--);
       });
+      //TODO implement
+     // Scrollable.ensureVisible(context, );
     }
     if (shouldScrollDown) {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) return;
@@ -146,7 +141,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
           .then((it) {
         updatePlaceholder();
         isScrolling = false;
-        _maybeScroll();
+        _maybeScroll(retry--);
       });
     }
   }
@@ -167,7 +162,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
             return new DraggableListItem(
               child: widgetAndDelegate.widget,
               custom: widget.providesOwnDraggable,
-              myKey: key[index],
+              key: new ValueKey(rows[index]),
               data: rows[index],
               index: index,
               tilt: widget.tilt,
@@ -181,7 +176,6 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
                 double end = rend.localToGlobal(new Offset(0.0, rend.semanticBounds.height)).dy;
 
                 sliverStartPos = start;
-                currentDraggedState = key[index].currentState;
                 draggedData = rows[index];
 
                 // _buildOverlay(context2, start, end);
@@ -332,7 +326,7 @@ class DraggableListItem extends StatelessWidget {
   final double tilt;
 
   DraggableListItem(
-      {this.myKey,
+      {Key key,
         this.data,
         this.index,
         this.onDragStarted,
@@ -345,7 +339,7 @@ class DraggableListItem extends StatelessWidget {
         this.tilt,
         this.dragElevation,
         this.delegate,
-        this.custom});
+        this.custom}): super(key: key);
 
   @override
   Widget build(BuildContext context) {
