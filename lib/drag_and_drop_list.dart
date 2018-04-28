@@ -100,7 +100,6 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   @override
   void initState() {
     super.initState();
-    print("reset");
     List data = widget.rowsData;
     rows = data.map((it) => new Data<T>(it)).toList();
 
@@ -152,73 +151,79 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
       builder: (BuildContext context3, constr) {
         return new ListView.builder(
           itemBuilder: (BuildContext context2, int index) {
-            WidgetAndDelegate widgetAndDelegate;
-            if (widget.providesOwnDraggable) {
-              widgetAndDelegate = widget.itemBuilderCustom(context2, rows[index].data);
-            } else {
-              widgetAndDelegate =
-              new WidgetAndDelegate(widget.itemBuilder(context2, rows[index].data), null);
-            }
-            return new DraggableListItem(
-              child: widgetAndDelegate.widget,
-              custom: widget.providesOwnDraggable,
-              key: new ValueKey(rows[index]),
-              data: rows[index],
-              index: index,
-              tilt: widget.tilt,
-              delegate: widgetAndDelegate.delegate,
-              dragElevation: widget.dragElevation,
-              draggedHeight: dragHeight,
-              onDragStarted: (double draggedHeight) {
-                _currentDraggingIndex = index;
-                RenderBox rend = context3.findRenderObject();
-                double start = rend.localToGlobal(new Offset(0.0, 0.0)).dy;
-                double end = rend.localToGlobal(new Offset(0.0, rend.semanticBounds.height)).dy;
-
-                sliverStartPos = start;
-                draggedData = rows[index];
-
-                // _buildOverlay(context2, start, end);
-
-                renderSliverContext = context2;
-                updatePlaceholder();
-                dragHeight = draggedHeight;
-
-                setState(() {
-                  rows.removeAt(index);
-                });
-              },
-              onDragCompleted: () {},
-              onAccept: (Data data) {
-                _accept(index, data);
-              },
-              onMove: (Offset offset) {
-                _currentScrollPos = offset.dy;
-                double screenHeight = MediaQuery.of(context2).size.height;
-
-                if (offset.dy < _kScrollThreshold) {
-                  shouldScrollUp = true;
-                } else {
-                  shouldScrollUp = false;
-                }
-                if (offset.dy > screenHeight - _kScrollThreshold) {
-                  shouldScrollDown = true;
-                } else {
-                  shouldScrollDown = false;
-                }
-                _maybeScroll();
-                updatePlaceholder();
-              },
-              cancelCallback: () {
-                _accept(_currentIndex, draggedData);
-              },
-            );
+            return _getDraggableListItem(context2, index, context3);
           },
           controller: scrollController,
           itemCount: rows.length,
         );
       },
     );
+  }
+
+
+  Widget _getDraggableListItem(BuildContext context2, int index, BuildContext context3) {
+    WidgetAndDelegate widgetAndDelegate;
+    if (widget.providesOwnDraggable) {
+      widgetAndDelegate = widget.itemBuilderCustom(context2, rows[index].data);
+    } else {
+      widgetAndDelegate =
+      new WidgetAndDelegate(widget.itemBuilder(context2, rows[index].data), null);
+    }
+    var draggableListItem = new DraggableListItem(
+      child: widgetAndDelegate.widget,
+      custom: widget.providesOwnDraggable,
+      key: new ValueKey(rows[index]),
+      data: rows[index],
+      index: index,
+      tilt: widget.tilt,
+      delegate: widgetAndDelegate.delegate,
+      dragElevation: widget.dragElevation,
+      draggedHeight: dragHeight,
+      onDragStarted: (double draggedHeight) {
+        _currentDraggingIndex = index;
+        RenderBox rend = context3.findRenderObject();
+        double start = rend.localToGlobal(new Offset(0.0, 0.0)).dy;
+        double end = rend.localToGlobal(new Offset(0.0, rend.semanticBounds.height)).dy;
+
+        sliverStartPos = start;
+        draggedData = rows[index];
+
+        // _buildOverlay(context2, start, end);
+
+        renderSliverContext = context2;
+        updatePlaceholder();
+        dragHeight = draggedHeight;
+
+        setState(() {
+          rows.removeAt(index);
+        });
+      },
+      onDragCompleted: () {},
+      onAccept: (Data data) {
+        _accept(index, data);
+      },
+      onMove: (Offset offset) {
+        _currentScrollPos = offset.dy;
+        double screenHeight = MediaQuery.of(context2).size.height;
+
+        if (offset.dy < _kScrollThreshold) {
+          shouldScrollUp = true;
+        } else {
+          shouldScrollUp = false;
+        }
+        if (offset.dy > screenHeight - _kScrollThreshold) {
+          shouldScrollDown = true;
+        } else {
+          shouldScrollDown = false;
+        }
+        _maybeScroll();
+        updatePlaceholder();
+      },
+      cancelCallback: () {
+        _accept(_currentIndex, draggedData);
+      },
+    );
+    return draggableListItem;
   }
 
   void _complete() {
