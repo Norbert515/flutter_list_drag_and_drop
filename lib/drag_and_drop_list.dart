@@ -94,8 +94,14 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
 
   bool isScrolling = false;
 
+  double offsetToStartOfItem = 0.0;
 
   double sliverStartPos = 0.0;
+
+  bool didJustStartDragging = false;
+
+  // This corrects the case when the user grabs the card at the bottom, the system will always handle like grabbed on the middle to ensure correct behvior
+  double middleOfItemInGlobalPosition = 0.0;
 
   @override
   void initState() {
@@ -113,8 +119,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
 
   }
 
-  void _maybeScroll([int retry = 3]) {
-    if(retry < 0) return;
+  void _maybeScroll() {
     if (isScrolling) return;
 
     if (shouldScrollUp) {
@@ -126,7 +131,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
           .then((it) {
         updatePlaceholder();
         isScrolling = false;
-        _maybeScroll(retry--);
+        _maybeScroll();
       });
       //TODO implement
      // Scrollable.ensureVisible(context, );
@@ -140,7 +145,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
           .then((it) {
         updatePlaceholder();
         isScrolling = false;
-        _maybeScroll(retry--);
+        _maybeScroll();
       });
     }
   }
@@ -179,11 +184,17 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
       delegate: widgetAndDelegate.delegate,
       dragElevation: widget.dragElevation,
       draggedHeight: dragHeight,
-      onDragStarted: (double draggedHeight) {
+      onDragStarted: (double draggedHeight, double globalTopPositionOfDraggedItem) {
         _currentDraggingIndex = index;
         RenderBox rend = context3.findRenderObject();
         double start = rend.localToGlobal(new Offset(0.0, 0.0)).dy;
         double end = rend.localToGlobal(new Offset(0.0, rend.semanticBounds.height)).dy;
+
+        didJustStartDragging = true;
+        _currentScrollPos = start;
+
+        middleOfItemInGlobalPosition = globalTopPositionOfDraggedItem + draggedHeight / 2;
+
 
         sliverStartPos = start;
         draggedData = rows[index];
@@ -198,20 +209,28 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
           rows.removeAt(index);
         });
       },
-      onDragCompleted: () {},
+      onDragCompleted: () {
+        _accept(index, draggedData);
+      },
       onAccept: (Data data) {
         _accept(index, data);
       },
       onMove: (Offset offset) {
-        _currentScrollPos = offset.dy;
+        if(didJustStartDragging) {
+          didJustStartDragging = false;
+          offsetToStartOfItem = offset.dy - middleOfItemInGlobalPosition;
+          print(offsetToStartOfItem);
+          _currentScrollPos = offset.dy - offsetToStartOfItem;
+        }
+        _currentScrollPos = offset.dy - offsetToStartOfItem;
         double screenHeight = MediaQuery.of(context2).size.height;
 
-        if (offset.dy < _kScrollThreshold) {
+        if (_currentScrollPos < _kScrollThreshold) {
           shouldScrollUp = true;
         } else {
           shouldScrollUp = false;
         }
-        if (offset.dy > screenHeight - _kScrollThreshold) {
+        if (_currentScrollPos > screenHeight - _kScrollThreshold) {
           shouldScrollDown = true;
         } else {
           shouldScrollDown = false;
@@ -233,15 +252,19 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
     _currentScrollPos = 0.0;
     _currentMiddle = null;
     _currentDraggingIndex = null;
+    didJustStartDragging = false;
+    offsetToStartOfItem = 0.0;
+    middleOfItemInGlobalPosition = 0.0;
   }
 
   void _accept(int index, Data data) {
+    if(_currentIndex == null || _currentMiddle == null)return;
     setState(() {
       shouldScrollDown = false;
       shouldScrollUp = false;
       data.extraTop = 0.0;
       data.extraBot = 0.0;
-      if (_currentMiddle.dy > _currentScrollPos) {
+      if (_currentMiddle.dy >= _currentScrollPos) {
         rows.insert(index, data);
         widget.onDragFinish(_currentDraggingIndex, index);
       } else {
@@ -293,7 +316,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
     }
 
     setState(() {
-      if (_currentScrollPos > middle) {
+      if (_currentScrollPos > _currentMiddle.dy) {
         rows[_currentIndex].extraBot = dragHeight;
         rows[_currentIndex].extraTop = 0.0;
       } else {
@@ -304,6 +327,9 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   }
 }
 
+typedef void OnDragStarted(double height, double topPosition);
+
+
 class DraggableListItem extends StatelessWidget {
   final Data data;
   final int index;
@@ -312,7 +338,7 @@ class DraggableListItem extends StatelessWidget {
 
   final double draggedHeight;
 
-  final ValueChanged<double> onDragStarted;
+  final OnDragStarted onDragStarted;
   final VoidCallback onDragCompleted;
   final MyDragTargetAccept<Data> onAccept;
   final ValueChanged<Offset> onMove;
@@ -353,7 +379,7 @@ class DraggableListItem extends StatelessWidget {
         delegate.onMove(onMove);
         delegate.onDragStarted(() {
           RenderBox it = context.findRenderObject() as RenderBox;
-          onDragStarted(it.size.height);
+          onDragStarted(it.size.height, it.localToGlobal(it.semanticBounds.topCenter).dy);
         });
         delegate.onComplete(onDragCompleted);
         delegate.onCancel(cancelCallback);
@@ -369,7 +395,7 @@ class DraggableListItem extends StatelessWidget {
           onMove: onMove,
           onDragStarted: () {
             RenderBox it = context.findRenderObject() as RenderBox;
-            onDragStarted(it.size.height);
+            onDragStarted(it.size.height, it.localToGlobal(it.semanticBounds.topCenter).dy);
           },
           onDragCompleted: onDragCompleted,
           onMyDraggableCanceled: (_, _2) {
