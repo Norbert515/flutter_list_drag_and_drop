@@ -219,7 +219,6 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
         if(didJustStartDragging) {
           didJustStartDragging = false;
           offsetToStartOfItem = offset.dy - middleOfItemInGlobalPosition;
-          print(offsetToStartOfItem);
           _currentScrollPos = offset.dy - offsetToStartOfItem;
         }
         _currentScrollPos = offset.dy - offsetToStartOfItem;
@@ -285,7 +284,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
     RenderSliverList it = renderSliverContext.findRenderObject();
     double buffer = sliverStartPos;
     RenderBox currentChild = it.firstChild;
-    buffer += currentChild.size.height;
+    buffer += it.childMainAxisPosition(currentChild) + currentChild.size.height;
     while (_currentScrollPos > buffer) {
       if (currentChild != null) {
         var bufferChild = it.childAfter(currentChild);
