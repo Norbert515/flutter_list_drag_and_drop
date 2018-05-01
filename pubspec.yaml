@@ -2,7 +2,7 @@ name: flutter_list_drag_and_drop
 description: A new Flutter package which handles all aspects of drag and drop inside a listView.
 author: Norbert Kozsir <kozsir.norbert@gmail.com>
 homepage: https://github.com/Norbert515/flutter_list_drag_and_drop
-version: 0.1.1
+version: 0.1.2
 
 
 environment:
