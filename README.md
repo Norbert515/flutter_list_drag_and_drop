@@ -5,7 +5,7 @@ A new Flutter package which handles all aspects of drag and drop inside a listVi
 In your pubspec.yaml
 ```
 dependencies:
-  flutter_list_drag_and_drop: "^0.1.1"
+  flutter_list_drag_and_drop: "^0.1.2"
 ```
 
 ## Note
