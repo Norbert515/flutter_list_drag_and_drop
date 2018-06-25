@@ -11,7 +11,7 @@ dependencies:
 ## Note
 The structure of this implementation has a few drawabacks. Back when I wrote this I made the mistake of using the Draggable class (I had no idea how to approache a drag&drop effect). Because using the draggable class following things happen:
 - The items shown are in an overlay, which might pass other constraints then your listview
-- The Draggable class adds a lot of unnecessary to this implmenetation.
+- The Draggable class adds a lot of unnecessary complexity to this implmenetation.
 
 A better approache in my opition would be to use the Stack directly.
 I might or might not rewrite some parts of this in the future.
