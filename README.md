@@ -27,13 +27,9 @@ More gifs coming soon..
 - Works with different sized items
 - material like behaviour 
 
-## How to use
-Coming soon..
+## Take a look at the example folder for info on how to use
 
-## What's coming next
 
-- Smoother animations
-- Support for horizontal lists
 
 If you encounter feel free to open an issue.
 Pull request are also welcome.
