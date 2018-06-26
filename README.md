@@ -19,7 +19,6 @@ I might or might not rewrite some parts of this in the future.
 ## Demo
 ![Demo 1](https://github.com/Norbert515/flutter_list_drag_and_drop/blob/master/example/gifs/demo_1_small.gif)
 
-More gifs coming soon..
 
 ## Features
 
