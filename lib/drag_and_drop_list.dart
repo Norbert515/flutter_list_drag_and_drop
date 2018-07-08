@@ -304,7 +304,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
     });
 
     if (_currentIndex >= rows.length) {
-      _currentIndex--;
+      return;
     }
 
     setState(() {
