@@ -106,14 +106,8 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   @override
   void initState() {
     super.initState();
-    updateRows();
   }
 
-  void updateRows() {
-    List data = widget.rowsData;
-    rows = data.map((it) => new Data<T>(it)).toList();
-  }
-  
   void _maybeScroll() {
     if (isScrolling) return;
 
@@ -146,12 +140,14 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // update the list of rows passed to the widget unless the user is currently dragging a row
-    if (widget.rowsData.length != rows.length && _currentDraggingIndex == null) {
-        updateRows();
-    }
+  void didUpdateWidget(DragAndDropList<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    List data = widget.rowsData;
+    rows = data.map((it) => new Data<T>(it)).toList();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return new LayoutBuilder(
       builder: (BuildContext context3, constr) {
         return new ListView.builder(
