@@ -106,6 +106,12 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   @override
   void initState() {
     super.initState();
+    populateRowList();
+  }
+
+  void populateRowList() {
+    List data = widget.rowsData;
+    rows = data.map((it) => new Data<T>(it)).toList();
   }
 
   void _maybeScroll() {
@@ -142,8 +148,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList> {
   @override
   void didUpdateWidget(DragAndDropList<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    List data = widget.rowsData;
-    rows = data.map((it) => new Data<T>(it)).toList();
+    populateRowList();
   }
 
   @override
