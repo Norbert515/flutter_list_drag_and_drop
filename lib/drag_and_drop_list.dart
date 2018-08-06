@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:meta/meta.dart';
 import 'my_draggable.dart';
 
 typedef WidgetAndDelegate WidgetMakerAndDelegate<T>(BuildContext context, T item);
