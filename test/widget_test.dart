@@ -34,14 +34,14 @@ void testSwap() {
     StatefulBuilder app = new StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
         return new MaterialApp(
-          home: new DragAndDropList<String>(
-            items,
-            itemBuilder: (BuildContext context, item) {
+          home: new DragAndDropList(
+            items.length,
+            itemBuilder: (BuildContext context, index) {
               return new SizedBox(
                 height: tileSize,
                 child: new Card(
                   child: new ListTile(
-                    title: new Text(item),
+                    title: new Text(items[index]),
                   ),
                 ),
               );
@@ -125,8 +125,7 @@ void testSwap() {
 
 /// Dispatch a pointer down / pointer up sequence at the given location with
 /// a delay of [kLongPressTimeout] + [kPressTimeout] between the two events.
-Future<Null> longPressDrag(
-    Finder finder, WidgetTester tester, Offset dragOffset) {
+Future<Null> longPressDrag(Finder finder, WidgetTester tester, Offset dragOffset) {
   Offset location = tester.getCenter(finder);
   return TestAsyncUtils.guard(() async {
     final TestGesture gesture = await tester.startGesture(location);
@@ -140,8 +139,7 @@ Future<Null> longPressDrag(
 
 /// Dispatch a pointer down / pointer up sequence at the given location with
 /// a delay of [kLongPressTimeout] + [kPressTimeout] between the two events.
-Future<Null> longPressDragOffset(
-    Offset location, WidgetTester tester, Offset dragOffset) {
+Future<Null> longPressDragOffset(Offset location, WidgetTester tester, Offset dragOffset) {
   return TestAsyncUtils.guard(() async {
     final TestGesture gesture = await tester.startGesture(location);
     await tester.pump(kLongPressTimeout + kPressTimeout);

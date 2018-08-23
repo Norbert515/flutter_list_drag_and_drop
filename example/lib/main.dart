@@ -13,8 +13,7 @@ class TestApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
-          primarySwatch: Colors.blue, primaryColor: new Color(0xffd05c6b)),
+      theme: new ThemeData(primarySwatch: Colors.blue, primaryColor: new Color(0xffd05c6b)),
       home: new MyHomePage(
         title: 'Flutter Demo Home Page',
         key: key,
@@ -35,10 +34,10 @@ class MyHomePageState extends State<MyHomePage> {
   List<String> items = [
     '0',
     '1',
-    '2',
+    'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
     '3',
     '4',
-    '5',
+    'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
     '6',
     '7',
     '8',
@@ -56,22 +55,27 @@ class MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      body: new DragAndDropList<String>(
-        items,
-        itemBuilder: (BuildContext context, item) {
+      body: new DragAndDropList(
+        items.length,
+        itemBuilder: (BuildContext context, index) {
           return new SizedBox(
             child: new Card(
               child: new ListTile(
-                title: new Text(item),
+                title: new Text(items[index]),
               ),
             ),
           );
         },
         onDragFinish: (before, after) {
+          print('on drag finish $before $after');
           String data = items[before];
           items.removeAt(before);
           items.insert(after, data);
         },
+//        canDrag: (index) {
+//          print('can drag $index');
+//          return index != 3; //disable drag for index 3
+//        },
         canBeDraggedTo: (one, two) => true,
         dragElevation: 8.0,
       ),
