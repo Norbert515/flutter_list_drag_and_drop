@@ -13,7 +13,7 @@ class TestApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(primarySwatch: Colors.blue, primaryColor: new Color(0xffd05c6b)),
+      theme: new ThemeData(primarySwatch: Colors.blue),
       home: new MyHomePage(
         title: 'Flutter Demo Home Page',
         key: key,
