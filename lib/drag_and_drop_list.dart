@@ -23,7 +23,7 @@ class WidgetAndDelegate {
 class DragAndDropList<T> extends StatefulWidget {
   final List<T> rowsData;
 
-  final WidgetMaker itemBuilder;
+  final WidgetMaker<T> itemBuilder;
 
   final WidgetMakerAndDelegate itemBuilderCustom;
 
@@ -63,7 +63,7 @@ class DragAndDropList<T> extends StatefulWidget {
   State<StatefulWidget> createState() => new _DragAndDropListState<T>();
 }
 
-class _DragAndDropListState<T> extends State<DragAndDropList> {
+class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
   final double _kScrollThreshold = 160.0;
 
   bool shouldScrollUp = false;
