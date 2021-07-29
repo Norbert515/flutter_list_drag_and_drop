@@ -6,7 +6,7 @@ void main() {
 }
 
 class TestApp extends StatelessWidget {
-  TestApp({Key key});
+  TestApp({Key? key});
 
   // This widget is the root of your application.
   @override
@@ -24,7 +24,7 @@ class TestApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title = ""}) : super(key: key);
   final String title;
 
   @override

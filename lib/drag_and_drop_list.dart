@@ -14,7 +14,7 @@ typedef bool CanAccept(int oldIndex, int newIndex);
 
 class WidgetAndDelegate {
   final Widget widget;
-  final DraggableDelegate delegate;
+  final DraggableDelegate? delegate;
 
   WidgetAndDelegate(this.widget, this.delegate);
 }
@@ -23,9 +23,9 @@ class WidgetAndDelegate {
 class DragAndDropList<T> extends StatefulWidget {
   final List<T> rowsData;
 
-  final WidgetMaker<T> itemBuilder;
+  final WidgetMaker<T>? itemBuilder;
 
-  final WidgetMakerAndDelegate itemBuilderCustom;
+  final WidgetMakerAndDelegate? itemBuilderCustom;
 
   final OnDragFinish onDragFinish;
 
@@ -42,18 +42,18 @@ class DragAndDropList<T> extends StatefulWidget {
   final double tilt;
 
   DragAndDropList(this.rowsData,
-      {Key key, @required this.itemBuilder,
-        this.onDragFinish,
-        @required this.canBeDraggedTo,
+      {Key? key, required this.itemBuilder,
+        required this.onDragFinish,
+        required this.canBeDraggedTo,
         this.dragElevation = 0.0,
         this.tilt = 0.0})
       : providesOwnDraggable = false,
         itemBuilderCustom = null, super(key: key);
 
   DragAndDropList.withCustomDraggableBehavior(this.rowsData,
-      {Key key,@required this.itemBuilderCustom,
-        this.onDragFinish,
-        @required this.canBeDraggedTo,
+      {Key? key, required this.itemBuilderCustom,
+        required this.onDragFinish,
+        required this.canBeDraggedTo,
         this.dragElevation = 0.0,
         this.tilt = 0.0})
       : providesOwnDraggable = true,
@@ -73,23 +73,23 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
 
   ScrollController scrollController = new ScrollController();
 
-  List<Data<T>> rows = new List<Data<T>>();
+  List<Data<T>> rows = <Data<T>>[];
 
   //Index of the item dragged
-  int _currentDraggingIndex;
+  int? _currentDraggingIndex;
 
 
   // The height of the item being dragged
-  double dragHeight;
+  double dragHeight = 0;
 
-  SliverMultiBoxAdaptorElement renderSliverContext;
+  SliverMultiBoxAdaptorElement? renderSliverContext;
 
-  Data<T> draggedData;
+  late Data<T> draggedData;
 
-  Offset _currentMiddle;
+  late Offset? _currentMiddle;
 
   //Index of the item currently accepting
-  int _currentIndex;
+  int? _currentIndex;
 
   bool isScrolling = false;
 
@@ -128,7 +128,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
         _maybeScroll();
       });
       //TODO implement
-     // Scrollable.ensureVisible(context, );
+      // Scrollable.ensureVisible(context, );
     }
     if (shouldScrollDown) {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) return;
@@ -167,12 +167,11 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
 
 
   Widget _getDraggableListItem(BuildContext context2, int index, BuildContext context3) {
-    WidgetAndDelegate widgetAndDelegate;
+    late WidgetAndDelegate widgetAndDelegate;
     if (widget.providesOwnDraggable) {
-      widgetAndDelegate = widget.itemBuilderCustom(context2, rows[index].data);
+      widgetAndDelegate = widget.itemBuilderCustom!(context2, rows[index].data);
     } else {
-      widgetAndDelegate =
-      new WidgetAndDelegate(widget.itemBuilder(context2, rows[index].data), null);
+      widgetAndDelegate = new WidgetAndDelegate(widget.itemBuilder!(context2, rows[index].data), null);
     }
     var draggableListItem = new DraggableListItem(
       child: widgetAndDelegate.widget,
@@ -186,7 +185,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
       draggedHeight: dragHeight,
       onDragStarted: (double draggedHeight, double globalTopPositionOfDraggedItem) {
         _currentDraggingIndex = index;
-        RenderBox rend = context3.findRenderObject();
+        RenderBox rend = context3.findRenderObject() as RenderBox;
         double start = rend.localToGlobal(new Offset(0.0, 0.0)).dy;
         double end = rend.localToGlobal(new Offset(0.0, rend.semanticBounds.height)).dy;
 
@@ -201,7 +200,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
 
         // _buildOverlay(context2, start, end);
 
-        renderSliverContext = context2;
+        renderSliverContext = context2 as SliverMultiBoxAdaptorElement;
         updatePlaceholder();
         dragHeight = draggedHeight;
 
@@ -213,7 +212,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
         _accept(index, draggedData);
       },
       onAccept: (Data data) {
-        _accept(index, data);
+        _accept(index, data as Data<T>);
       },
       onMove: (Offset offset) {
         if(didJustStartDragging) {
@@ -238,7 +237,8 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
         updatePlaceholder();
       },
       cancelCallback: () {
-        _accept(_currentIndex, draggedData);
+        if (_currentIndex != null)
+          _accept(_currentIndex!, draggedData);
       },
     );
     return draggableListItem;
@@ -256,19 +256,24 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
     middleOfItemInGlobalPosition = 0.0;
   }
 
-  void _accept(int index, Data data) {
+  void _accept(int index, Data<T> data) {
+    final _currentMiddle = this._currentMiddle;
+    final _currentIndex = this._currentIndex;
     if(_currentIndex == null || _currentMiddle == null)return;
     setState(() {
       shouldScrollDown = false;
       shouldScrollUp = false;
       data.extraTop = 0.0;
       data.extraBot = 0.0;
+      final _currentDraggingIndex = this._currentDraggingIndex;
       if (_currentMiddle.dy >= _currentScrollPos) {
         rows.insert(index, data);
-        widget.onDragFinish(_currentDraggingIndex, index);
+        if (_currentDraggingIndex != null)
+          widget.onDragFinish(_currentDraggingIndex, index);
       } else {
         rows.insert(index + 1, data);
-        widget.onDragFinish(_currentDraggingIndex, index + 1);
+        if (_currentDraggingIndex != null)
+          widget.onDragFinish(_currentDraggingIndex, index + 1);
       }
       rows.forEach((it) {
         it.extraTop = 0.0;
@@ -279,11 +284,15 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
   }
 
   void updatePlaceholder() {
+    final renderSliverContext = this.renderSliverContext;
+    final _currentDraggingIndex = this._currentDraggingIndex;
     if (renderSliverContext == null) return;
     if (_currentDraggingIndex == null) return;
-    RenderSliverList it = renderSliverContext.findRenderObject();
+    RenderSliverList it = renderSliverContext.findRenderObject() as RenderSliverList;
     double buffer = sliverStartPos;
-    RenderBox currentChild = it.firstChild;
+    RenderBox? currentChild = it.firstChild;
+    if (currentChild == null)
+      return;
     buffer += it.childMainAxisPosition(currentChild) + currentChild.size.height;
     while (_currentScrollPos > buffer) {
       if (currentChild != null) {
@@ -294,14 +303,14 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
       }
     }
     assert(currentChild != null);
-    double middle = buffer - currentChild.size.height / 2;
+    double middle = buffer - currentChild!.size.height / 2;
 
     int index = it.indexOf(currentChild);
     if (!widget.canBeDraggedTo(_currentDraggingIndex, index)) return;
 
     _currentMiddle = new Offset(0.0, middle);
-    _currentIndex = index;
-
+    this._currentIndex = index;
+    final _currentIndex = this._currentIndex!;
     //TODO not so performant
     setState(() {
       rows.forEach((it) {
@@ -315,7 +324,7 @@ class _DragAndDropListState<T> extends State<DragAndDropList<T>> {
     }
 
     setState(() {
-      if (_currentScrollPos > _currentMiddle.dy) {
+      if (_currentScrollPos > (_currentMiddle?.dy??0.0)) {
         rows[_currentIndex].extraBot = dragHeight;
         rows[_currentIndex].extraTop = 0.0;
       } else {
@@ -333,55 +342,58 @@ class DraggableListItem extends StatelessWidget {
   final Data data;
   final int index;
 
-  final double _kScrollThreashhold = 80.0;
+  final double? _kScrollThreashhold = 80.0;
 
-  final double draggedHeight;
+  final double? draggedHeight;
 
-  final OnDragStarted onDragStarted;
-  final VoidCallback onDragCompleted;
-  final MyDragTargetAccept<Data> onAccept;
-  final ValueChanged<Offset> onMove;
-  final VoidCallback cancelCallback;
+  final OnDragStarted? onDragStarted;
+  final VoidCallback?onDragCompleted;
+  final MyDragTargetAccept<Data>? onAccept;
+  final ValueChanged<Offset>? onMove;
+  final VoidCallback? cancelCallback;
 
-  final double dragElevation;
+  final double? dragElevation;
 
-  Key myKey;
+  Key? myKey;
 
   final Widget child;
 
-  DraggableDelegate delegate;
+  DraggableDelegate? delegate;
 
   final bool custom;
 
-  final double tilt;
+  final double? tilt;
 
   DraggableListItem(
-      {Key key,
-        this.data,
-        this.index,
+      {Key? key,
+        required this.data,
+        this.index = 0,
         this.onDragStarted,
         this.onDragCompleted,
         this.onAccept,
         this.onMove,
         this.cancelCallback,
         this.draggedHeight,
-        this.child,
+        required this.child,
         this.tilt,
         this.dragElevation,
         this.delegate,
-        this.custom}): super(key: key);
+        this.custom = false}): super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (custom) {
+      final delegate = this.delegate;
       if (delegate != null) {
         delegate.onMove(onMove);
         delegate.onDragStarted(() {
           RenderBox it = context.findRenderObject() as RenderBox;
-          onDragStarted(it.size.height, it.localToGlobal(it.semanticBounds.topCenter).dy);
+          if (onDragStarted != null)
+            onDragStarted!(it.size.height, it.localToGlobal(it.semanticBounds.topCenter).dy);
         });
         delegate.onComplete(onDragCompleted);
-        delegate.onCancel(cancelCallback);
+        if (cancelCallback != null)
+          delegate.onCancel(cancelCallback!);
       }
 
       return _getListChild(context);
@@ -394,11 +406,13 @@ class DraggableListItem extends StatelessWidget {
           onMove: onMove,
           onDragStarted: () {
             RenderBox it = context.findRenderObject() as RenderBox;
-            onDragStarted(it.size.height, it.localToGlobal(it.semanticBounds.topCenter).dy);
+            if (onDragStarted != null)
+              onDragStarted!(it.size.height, it.localToGlobal(it.semanticBounds.topCenter).dy);
           },
           onDragCompleted: onDragCompleted,
           onMyDraggableCanceled: (_, _2) {
-            cancelCallback();
+            if (cancelCallback != null)
+              cancelCallback!();
           });
     }
   }
@@ -430,11 +444,11 @@ class DraggableListItem extends StatelessWidget {
     return new ConstrainedBox(
       constraints: new BoxConstraints(maxWidth: maxWidth),
       child: new Transform(
-        transform: new Matrix4.rotationZ(tilt),
+        transform: new Matrix4.rotationZ(tilt??0.0),
         alignment: FractionalOffset.bottomRight,
         child: new Material(
           child: child,
-          elevation: dragElevation,
+          elevation: dragElevation??0.0,
           color: Colors.transparent,
           borderRadius: BorderRadius.zero,
         ),
@@ -450,15 +464,15 @@ class Data<T> {
   double extraTop;
   double extraBot;
 
-  Data(this.data, {this.color, this.extraTop = 0.0, this.extraBot = 0.0});
+  Data(this.data, {this.color = Colors.white, this.extraTop = 0.0, this.extraBot = 0.0});
 }
 
 class ListDraggable extends StatelessWidget {
   final Widget child;
   final bool longPress;
-  final DraggableDelegate delegate;
+  final DraggableDelegate? delegate;
 
-  ListDraggable({this.child, this.longPress, this.delegate});
+  ListDraggable({required this.child, this.longPress = false, this.delegate});
 
   @override
   Widget build(BuildContext context) {
@@ -467,17 +481,17 @@ class ListDraggable extends StatelessWidget {
 }
 
 class DraggableDelegate {
-  VoidCallback onDragStartedListener;
+  VoidCallback? onDragStartedListener;
 
-  ValueChanged<Offset> onMoveListener;
+  ValueChanged<Offset>? onMoveListener;
 
-  VoidCallback onDragCompleted;
+  VoidCallback? onDragCompleted;
 
-  VoidCallback onCancelListener;
+  VoidCallback? onCancelListener;
 
   void cancel() {
     if (onCancelListener != null) {
-      onCancelListener();
+      onCancelListener!();
     }
   }
 
@@ -487,27 +501,27 @@ class DraggableDelegate {
 
   void complete() {
     if (onDragCompleted != null) {
-      onDragCompleted();
+      onDragCompleted!();
     }
   }
 
-  void onComplete(VoidCallback listener) {
+  void onComplete(VoidCallback? listener) {
     onDragCompleted = listener;
   }
 
-  void move(Offset offset) {
-    if (onMoveListener != null) {
-      onMoveListener(offset);
+  void move(Offset? offset) {
+    if (onMoveListener != null && offset != null) {
+      onMoveListener!(offset);
     }
   }
 
-  void onMove(ValueChanged<Offset> listener) {
+  void onMove(ValueChanged<Offset>? listener) {
     onMoveListener = listener;
   }
 
   void startDrag() {
     if (onDragStartedListener != null) {
-      onDragStartedListener();
+      onDragStartedListener!();
     }
   }
 
